@@ -74,7 +74,11 @@ describe('GET/todos', () => {
   })
 });
 
+<<<<<<< HEAD
 //GET testing individual id
+=======
+
+>>>>>>> 52c995104ab1f99ed50b80861d81505b943602ee
 describe('GET/todos/:id', () => {
   it('should return todo doc', (done) => {
       request(app)
@@ -82,6 +86,7 @@ describe('GET/todos/:id', () => {
       .expect(200)
       .expect((res) => {
         expect(res.body.todo.text).toBe(todos[0].text);
+<<<<<<< HEAD
       }).end(done);
   });
 
@@ -100,3 +105,9 @@ it('should return 404 if todo ID is invalid', (done) => {
 });
 
 });
+=======
+      })
+      .end(done);
+  })
+})
+>>>>>>> 52c995104ab1f99ed50b80861d81505b943602ee
