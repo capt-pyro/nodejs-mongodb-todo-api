@@ -3,19 +3,28 @@ const request = require('supertest');
 
 var {app} = require('./../server');
 var {Todo} = require('./../models/todo');
+var {ObjectID} = require('mongodb');
 
 const todos = [{
+  _id: new ObjectID(),
   text: 'First test to do'
 }, {
+  _id: new ObjectID(),
   text: 'Second test to do'
 }];
+const todosNotAdded = {
+  _id: new ObjectID(),
+  text: 'Not present'
+};
 
+//Sets database to a known state before testing starts
 beforeEach((done) => {
   Todo.remove({}).then(() =>{
     return Todo.insertMany(todos);
   }).then(() => done());
 });
 
+//POST testing
 describe('POST/todos', () => {
   it('it should create a new todo', (done) => {
     var text = 'Test tode text';
@@ -53,7 +62,7 @@ describe('POST/todos', () => {
   });
 });
 
-
+//GET testing all todos
 describe('GET/todos', () => {
   it('should get all todos', (done) => {
     request(app)
@@ -63,4 +72,31 @@ describe('GET/todos', () => {
       expect(res.body.todos.length).toBe(2);
     }).end(done);
   })
+});
+
+//GET testing individual id
+describe('GET/todos/:id', () => {
+  it('should return todo doc', (done) => {
+      request(app)
+      .get(`/todos/${todos[0]._id.toHexString()}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(todos[0].text);
+      }).end(done);
+  });
+
+it('should return 404 if todo not found', (done) => {
+    request(app)
+    .get(`/todos/${todosNotAdded._id.toHexString()}`)
+    .expect(404)
+    .end(done);
+});
+
+it('should return 404 if todo ID is invalid', (done) => {
+  request(app)
+  .get(`/todos/123456`)
+  .expect(404)
+  .end(done);
+});
+
 });
