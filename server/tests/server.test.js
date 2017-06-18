@@ -5,6 +5,8 @@ var {app} = require('./../server');
 var {Todo} = require('./../models/todo');
 var {ObjectID} = require('mongodb');
 
+
+
 const todos = [{
   _id: new ObjectID(),
   text: 'First test to do'
@@ -12,6 +14,7 @@ const todos = [{
   _id: new ObjectID(),
   text: 'Second test to do'
 }];
+
 const todosNotAdded = {
   _id: new ObjectID(),
   text: 'Not present'
@@ -20,14 +23,15 @@ const todosNotAdded = {
 //Sets database to a known state before testing starts
 beforeEach((done) => {
   Todo.remove({}).then(() =>{
-    return Todo.insertMany(todos);
+    return Todo.insertMany(todos);//only two known todos are there in database
   }).then(() => done());
 });
 
 //POST testing
 describe('POST/todos', () => {
+  //succesfull posting of todo
   it('it should create a new todo', (done) => {
-    var text = 'Test tode text';
+    var text = 'Test todo text ';
 
     request(app)
     .post('/todos')
@@ -45,6 +49,7 @@ describe('POST/todos', () => {
       }).catch((e) => done(e));
     });
   });
+  //shouldn't post todos
   it('should not create todo with invalid body data',(done) => {
     var text = '';
 
@@ -64,6 +69,7 @@ describe('POST/todos', () => {
 
 //GET testing all todos
 describe('GET/todos', () => {
+  //successfully return all todos
   it('should get all todos', (done) => {
     request(app)
     .get('/todos')
@@ -76,6 +82,7 @@ describe('GET/todos', () => {
 
 //GET testing individual id
 describe('GET/todos/:id', () => {
+  //success
   it('should return todo doc', (done) => {
       request(app)
       .get(`/todos/${todos[0]._id.toHexString()}`)
@@ -84,14 +91,14 @@ describe('GET/todos/:id', () => {
         expect(res.body.todo.text).toBe(todos[0].text);
       }).end(done);
   });
-
+//not found
 it('should return 404 if todo not found', (done) => {
     request(app)
     .get(`/todos/${todosNotAdded._id.toHexString()}`)
     .expect(404)
     .end(done);
 });
-
+//invalid
 it('should return 404 if todo ID is invalid', (done) => {
   request(app)
   .get(`/todos/123`)
