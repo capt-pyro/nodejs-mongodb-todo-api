@@ -31,7 +31,7 @@ beforeEach((done) => {
 describe('POST/todos', () => {
   //succesfull posting of todo
   it('it should create a new todo', (done) => {
-    var text = 'Test todo text ';
+    var text = 'Test todo text';
 
     request(app)
     .post('/todos')
@@ -106,4 +106,36 @@ it('should return 404 if todo ID is invalid', (done) => {
   .end(done);
 });
 
+});
+
+describe('DELETE/todos/:id', () => {
+  it('should remove the todo requested', (done) => {
+    request(app)
+    .delete(`/todos/${todos[1]._id.toHexString()}`).
+    expect(200)
+    .expect((res) => {
+      expect(res.body.todo.text).toBe(todos[1].text);
+    }).end((err, res) => {
+      if(err) return done(err);
+      Todo.findById(todos[1]._id.toHexString()).then((todo) => {
+        expect(todo).toNotExist();
+        done();
+      }).catch((e) => done(e));
+    });
+  });
+
+  it('should return 404 if id is invalid', (done) =>{
+    request(app)
+    .delete('/todos/123')
+    .expect(404)
+    .end(done);
+  });
+
+  it('should return 404 if id not found', (done) => {
+    var id = new ObjectID().toHexString();
+    request(app)
+    .delete(`/todos/${id}`)
+    .expect(404)
+    .end(done);
+  });
 });
