@@ -2,6 +2,7 @@ require('./config/config');
 //npm modules
 const express = require('express');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcryptjs');
 const _ = require('lodash');
 
 var{authenticate} = require('./middleware/authenticate');
@@ -9,6 +10,8 @@ var{mongoose} = require('./db/mongoose');
 var{Todo} = require('./models/todo');
 var{User} = require('./models/user');
 var {ObjectID} = require('mongodb');
+
+
 var app = express(); //start express
 const port = process.env.PORT;
 //Declare express Middleware
@@ -94,10 +97,23 @@ app.post('/users', (req,res) => {
 app.get('/users/me', authenticate, (req,res) => {
   res.send(req.user);
 });
+
+app.post('/users/login', (req,res) => {
+  var body = new User(_.pick(req.body, ['email', 'password']));
+//specially defined search function
+  User.findByCredentials(body.email,body.password).then((user) => {
+    user.generateAuthToken().then((token) => {
+      res.header('x-auth',token).send(user);
+    });
+  }).catch((err) => res.status(400).send());
+});
+
 //connect to port 3000
 app.listen(port, () =>{
   console.log(`Started on port ${port}`);
 });
+
+
 
 
 module.exports = {app};
