@@ -3,6 +3,7 @@ const request = require('supertest');
 
 var {app} = require('./../server');
 var {Todo} = require('./../models/todo');
+var {User} = require('./../models/user');
 var {ObjectID} = require('mongodb');
 const{todos,populateTodos,users, populateUsers} = require('./seed/seed');
 
@@ -158,6 +159,80 @@ describe('PATCH/todos/:id', () => {
       expect(res.body.todo.completed).toBe(false);
       expect(res.body.todo.completedAt).toNotExist();
     })
+    .end(done);
+  });
+});
+
+describe('GET/users/me', () => {
+    it('should return user if authenticated', (done) => {
+      request(app)
+      .get('/users/me')
+      .set('x-auth', users[0].tokens[0].token)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body._id).toBe(users[0]._id.toHexString());
+        expect(res.body.email).toBe(users[0].email);
+      }).end(done);
+    });
+
+    it('should return 401 if not authenticated', (done) => {
+      request(app)
+      .get('/users/me')
+      .expect(401)
+      .expect((res) => {
+        expect(res.body).toEqual({});
+      })
+      .end(done);
+    });
+});
+
+
+describe('/POST/users', () => {
+  it('should create a new user in database', (done) => {
+    var use = {
+      email: 'wer@sdfg.com',
+      password: 'wefgy65'
+    }
+    request(app)
+    .post('/users')
+    .send(use)
+    .expect(200)
+    .expect((res) => {
+      expect(res.body.email).toExist();
+      expect(res.body._id).toExist();
+      expect(res.header['x-auth']).toExist();
+    })
+    .end((err) => {
+      if(err) return done();
+      User.findOne({email: use.email}).then((user) => {
+        expect(user).toExist();
+        expect(user.password).toNotBe(use.password);
+        done();
+      });
+    });
+  });
+
+  it('should return validation errors if data is invalid', (done) => {
+    var use = {
+      email: 'wer',
+      password: 'wey65'
+    }
+    request(app)
+    .post('/users')
+    .send(use)
+    .expect(400)
+    .end(done);
+  });
+
+  it('should not create account if email is in use', (done) => {
+    var use = {
+      email: 'dummy@dummy.com',
+      password: 'ww2dey65'
+    }
+    request(app)
+    .post('/users')
+    .send(use)
+    .expect(400)
     .end(done);
   });
 });
