@@ -4,30 +4,11 @@ const request = require('supertest');
 var {app} = require('./../server');
 var {Todo} = require('./../models/todo');
 var {ObjectID} = require('mongodb');
-
-
-
-const todos = [{
-  _id: new ObjectID(),
-  text: 'First test to do'
-}, {
-  _id: new ObjectID(),
-  text: 'Second test to do',
-  completed: 'true',
-  completedAt: 123456
-}];
-
-const todosNotAdded = {
-  _id: new ObjectID(),
-  text: 'Not present'
-};
+const{todos,populateTodos,users, populateUsers} = require('./seed/seed');
 
 //Sets database to a known state before testing starts
-beforeEach((done) => {
-  Todo.remove({}).then(() =>{
-    return Todo.insertMany(todos);//only two known todos are there in database
-  }).then(() => done());
-});
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
 //POST testing
 describe('POST/todos', () => {
@@ -95,8 +76,9 @@ describe('GET/todos/:id', () => {
   });
 //not found
 it('should return 404 if todo not found', (done) => {
+  var id = new ObjectID().toHexString();
     request(app)
-    .get(`/todos/${todosNotAdded._id.toHexString()}`)
+    .get(`/todos/${id}`)
     .expect(404)
     .end(done);
 });
