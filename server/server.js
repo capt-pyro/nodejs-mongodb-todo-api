@@ -108,6 +108,15 @@ app.post('/users/login', (req,res) => {
   }).catch((err) => res.status(400).send());
 });
 
+//DELETE route to LOGOUT users
+app.delete('/users/me/token', authenticate, (req,res) => {
+  req.user.removeToken(req.token).then(() => {
+    res.status(200).send();
+  }, () => {
+    res.status(400).send();
+  })
+});
+
 //connect to port 3000
 app.listen(port, () =>{
   console.log(`Started on port ${port}`);
