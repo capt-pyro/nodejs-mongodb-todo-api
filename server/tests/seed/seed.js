@@ -15,7 +15,7 @@ const users = [{
   }]
 }, {
   _id: userTwoId,
-  email: 'dummy2@dummy.com',
+  email: 'dummy3@dummy.com',
   password: '123abc',
   tokens: [{
       access: 'auth',
