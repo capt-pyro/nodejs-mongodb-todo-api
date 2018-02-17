@@ -1,6 +1,6 @@
 # nodejs-mongodb-todo-api
 
-My first RESTful api. It is simply a Node server using Expressjs to host routes that perform different tasks to aid a cloud based todo list application. It uses MongoDB as it's database for storing todo records securely storing user data. Routes include registering, logging in, authenticating and logging out users. Check out the route descriptions below. Used mocha and supertest for testing.
+My first RESTful api. It is a Node server using Expressjs to host routes that perform different tasks to aid a cloud based todo list application. It uses MongoDB as it's database for storing todo records securely storing user data. Routes include registering, logging in, authenticating and logging out users. Check out the route descriptions below. Used mocha and supertest for testing.
 
 # How to run
 
